@@ -85,27 +85,27 @@ const MapComponent = () => {
     <div className="flex flex-col h-full">
       <div className="flex p-2 bg-gray-100 border-b border-gray-200">
         <button
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md transition duration-200 ${
+          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md transition duration-200 hover:bg-purple-500 hover:text-white transition duration-200 ${
             activeButton === 'draw'
-              ? 'bg-blue-500 text-white'
-              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+              ? 'bg-purple-500 text-white'
+              : 'bg-white text-purple-700 border border-purple-300 hover:bg-purple-50'
           }`}
           onClick={handleDrawPolygon}
         >
           Draw Polygon
         </button>
         <button
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md transition duration-200 ${
+          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md transition duration-200 hover:bg-purple-500 hover:text-white transition duration-200 ${
             activeButton === 'edit'
-              ? 'bg-blue-500 text-white'
-              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+              ? 'bg-purple-500 text-white'
+              : 'bg-white text-purple-700 border border-purple-300 hover:bg-purple-50'
           }`}
           onClick={handleEditPolygon}
         >
           Edit Polygon
         </button>
         <button
-          className="px-4 py-2 text-sm font-medium bg-white text-red-500 border border-red-300 rounded-md hover:bg-red-500 hover:text-white transition duration-200"
+          className="px-4 py-2 text-sm font-medium bg-white text-pink-500 border border-pink-300 rounded-md hover:bg-pink-500 hover:text-white transition duration-200"
           onClick={handleDeletePolygons}
         >
           Delete All

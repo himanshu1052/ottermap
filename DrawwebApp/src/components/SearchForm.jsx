@@ -5,10 +5,11 @@ import { UserContext } from '../context/UserContext';
 const SearchForm = () => {
   const { setUserData } = useContext(UserContext);
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     firstName: '',
-    mobileNumber: ''
+    mobileNumber: '',
+    searchQuery: '', // Added search query state
   });
   const [errors, setErrors] = useState({});
 
@@ -16,14 +17,13 @@ const SearchForm = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
-    
-    
+
     if (errors[name]) {
       setErrors({
         ...errors,
-        [name]: ''
+        [name]: '',
       });
     }
   };
@@ -31,12 +31,12 @@ const SearchForm = () => {
   const validateForm = () => {
     let tempErrors = {};
     let isValid = true;
-    
+
     if (!formData.firstName.trim()) {
       tempErrors.firstName = 'First name is required';
       isValid = false;
     }
-    
+
     if (!formData.mobileNumber.trim()) {
       tempErrors.mobileNumber = 'Mobile number is required';
       isValid = false;
@@ -44,14 +44,14 @@ const SearchForm = () => {
       tempErrors.mobileNumber = 'Mobile number must be 10 digits';
       isValid = false;
     }
-    
+
     setErrors(tempErrors);
     return isValid;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       setUserData(formData);
       navigate('/map');
@@ -59,8 +59,14 @@ const SearchForm = () => {
   };
 
   return (
+
+
     <div className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
+      
       <form onSubmit={handleSubmit}>
+      
+
+    
         <div className="mb-4">
           <label htmlFor="firstName" className="block text-gray-700 font-medium mb-2">
             First Name
@@ -73,13 +79,15 @@ const SearchForm = () => {
             onChange={handleChange}
             className={`w-full px-3 py-2 border rounded-md ${
               errors.firstName ? 'border-red-500' : 'border-gray-300'
-            } focus:outline-none focus:ring-1 focus:ring-blue-500`}
+            } focus:outline-none focus:ring-1 focus:ring-purple-500`}
+            placeholder="Enter your first name"
           />
           {errors.firstName && (
             <p className="mt-1 text-sm text-red-500">{errors.firstName}</p>
           )}
         </div>
-        
+
+       
         <div className="mb-6">
           <label htmlFor="mobileNumber" className="block text-gray-700 font-medium mb-2">
             Mobile Number
@@ -92,16 +100,18 @@ const SearchForm = () => {
             onChange={handleChange}
             className={`w-full px-3 py-2 border rounded-md ${
               errors.mobileNumber ? 'border-red-500' : 'border-gray-300'
-            } focus:outline-none focus:ring-1 focus:ring-blue-500`}
+            } focus:outline-none focus:ring-1 focus:ring-purple-500`}
+            placeholder="Enter your mobile number"
           />
           {errors.mobileNumber && (
             <p className="mt-1 text-sm text-red-500">{errors.mobileNumber}</p>
           )}
         </div>
+
         
-        <button 
-          type="submit" 
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+        <button
+          type="submit"
+          className="w-full bg-purple-500 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
         >
           Continue to Map
         </button>

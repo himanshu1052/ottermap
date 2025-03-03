@@ -10,7 +10,7 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-50">
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route  path="/" element={<HomePage />} />
             <Route path="/map" element={<MapPage />} />
           </Routes>
         </div>
