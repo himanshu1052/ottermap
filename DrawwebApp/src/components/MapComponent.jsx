@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import OLMap from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
@@ -14,6 +14,9 @@ const MapComponent = () => {
   const [activeButton, setActiveButton] = useState(null);
   const [map, setMap] = useState(null);
   const [vectorSource, setVectorSource] = useState(new VectorSource());
+  const drawInteractionRef = useRef(null);
+  const modifyInteractionRef = useRef(null);
+  const selectInteractionRef = useRef(null);
 
   useEffect(() => {
     const rasterLayer = new TileLayer({
@@ -47,45 +50,69 @@ const MapComponent = () => {
 
     return () => {
       if (newMap) {
-        newMap.setTarget(null); 
+        newMap.setTarget(null);
       }
     };
   }, []);
 
   const handleDrawPolygon = () => {
+    // Clear any existing interactions
+    if (modifyInteractionRef.current) {
+      map.removeInteraction(modifyInteractionRef.current);
+    }
+    if (selectInteractionRef.current) {
+      map.removeInteraction(selectInteractionRef.current);
+    }
+    
     if (activeButton === 'draw') {
       setActiveButton(null);
-      map.removeInteraction(drawInteraction); 
+      if (drawInteractionRef.current) {
+        map.removeInteraction(drawInteractionRef.current);
+        drawInteractionRef.current = null;
+      }
       return;
     }
+    
     setActiveButton('draw');
-    const drawInteraction = new Draw({
+    drawInteractionRef.current = new Draw({
       source: vectorSource,
       type: 'Polygon',
     });
-    map.addInteraction(drawInteraction);
+    map.addInteraction(drawInteractionRef.current);
   };
 
   const handleEditPolygon = () => {
+    // Clear any existing interactions
+    if (drawInteractionRef.current) {
+      map.removeInteraction(drawInteractionRef.current);
+    }
+    if (selectInteractionRef.current) {
+      map.removeInteraction(selectInteractionRef.current);
+    }
+    
     if (activeButton === 'edit') {
       setActiveButton(null);
-      map.removeInteraction(modifyInteraction); // Remove modify interaction
+      if (modifyInteractionRef.current) {
+        map.removeInteraction(modifyInteractionRef.current);
+        modifyInteractionRef.current = null;
+      }
       return;
     }
+    
     setActiveButton('edit');
-    const modifyInteraction = new Modify({ source: vectorSource });
-    map.addInteraction(modifyInteraction);
+    modifyInteractionRef.current = new Modify({ source: vectorSource });
+    map.addInteraction(modifyInteractionRef.current);
   };
 
   const handleDeletePolygons = () => {
-    vectorSource.clear(); 
+    vectorSource.clear();
   };
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex p-2 bg-gray-100 border-b border-gray-200">
         <button
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md transition duration-200 hover:bg-purple-500 hover:text-white transition duration-200 ${
+          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md transition duration-200 hover:bg-purple-500 hover:text-white ${
             activeButton === 'draw'
               ? 'bg-purple-500 text-white'
               : 'bg-white text-purple-700 border border-purple-300 hover:bg-purple-50'
@@ -95,7 +122,7 @@ const MapComponent = () => {
           Draw Polygon
         </button>
         <button
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md transition duration-200 hover:bg-purple-500 hover:text-white transition duration-200 ${
+          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md transition duration-200 hover:bg-purple-500 hover:text-white ${
             activeButton === 'edit'
               ? 'bg-purple-500 text-white'
               : 'bg-white text-purple-700 border border-purple-300 hover:bg-purple-50'
@@ -117,11 +144,9 @@ const MapComponent = () => {
         style={{
           position: 'relative',
           overflow: 'hidden',
-          backgroundColor: 'white', 
+          backgroundColor: 'white',
         }}
-      >
-       
-      </div>
+      ></div>
     </div>
   );
 };
