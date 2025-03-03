@@ -3,12 +3,10 @@ import OLMap from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
-import { Draw, Modify, Select } from 'ol/interaction';
-import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
+import { Draw, Modify } from 'ol/interaction';
+import { Fill, Stroke, Style } from 'ol/style';
 import { Vector as VectorSource } from 'ol/source';
 import { Vector as VectorLayer } from 'ol/layer';
-import { Feature } from 'ol';
-import Polygon from 'ol/geom/Polygon';
 
 const MapComponent = () => {
   const [activeButton, setActiveButton] = useState(null);
@@ -16,7 +14,6 @@ const MapComponent = () => {
   const [vectorSource, setVectorSource] = useState(new VectorSource());
   const drawInteractionRef = useRef(null);
   const modifyInteractionRef = useRef(null);
-  const selectInteractionRef = useRef(null);
 
   useEffect(() => {
     const rasterLayer = new TileLayer({
@@ -26,44 +23,26 @@ const MapComponent = () => {
     const vectorLayer = new VectorLayer({
       source: vectorSource,
       style: new Style({
-        fill: new Fill({
-          color: 'rgba(255, 165, 0, 0.5)',
-        }),
-        stroke: new Stroke({
-          color: '#ff5500',
-          width: 2,
-        }),
+        fill: new Fill({ color: 'rgba(255, 165, 0, 0.5)' }),
+        stroke: new Stroke({ color: '#ff5500', width: 2 }),
       }),
     });
 
     const newMap = new OLMap({
       target: 'map',
       layers: [rasterLayer, vectorLayer],
-      view: new View({
-        center: [0, 0],
-        zoom: 2,
-      }),
+      view: new View({ center: [0, 0], zoom: 2 }),
+      controls: [] // Remove all default controls
     });
 
     setMap(newMap);
     setVectorSource(vectorSource);
 
-    return () => {
-      if (newMap) {
-        newMap.setTarget(null);
-      }
-    };
+    return () => newMap.setTarget(null);
   }, []);
 
   const handleDrawPolygon = () => {
-    // Clear any existing interactions
-    if (modifyInteractionRef.current) {
-      map.removeInteraction(modifyInteractionRef.current);
-    }
-    if (selectInteractionRef.current) {
-      map.removeInteraction(selectInteractionRef.current);
-    }
-    
+    if (modifyInteractionRef.current) map.removeInteraction(modifyInteractionRef.current);
     if (activeButton === 'draw') {
       setActiveButton(null);
       if (drawInteractionRef.current) {
@@ -72,24 +51,13 @@ const MapComponent = () => {
       }
       return;
     }
-    
     setActiveButton('draw');
-    drawInteractionRef.current = new Draw({
-      source: vectorSource,
-      type: 'Polygon',
-    });
+    drawInteractionRef.current = new Draw({ source: vectorSource, type: 'Polygon' });
     map.addInteraction(drawInteractionRef.current);
   };
 
   const handleEditPolygon = () => {
-    // Clear any existing interactions
-    if (drawInteractionRef.current) {
-      map.removeInteraction(drawInteractionRef.current);
-    }
-    if (selectInteractionRef.current) {
-      map.removeInteraction(selectInteractionRef.current);
-    }
-    
+    if (drawInteractionRef.current) map.removeInteraction(drawInteractionRef.current);
     if (activeButton === 'edit') {
       setActiveButton(null);
       if (modifyInteractionRef.current) {
@@ -98,55 +66,27 @@ const MapComponent = () => {
       }
       return;
     }
-    
     setActiveButton('edit');
     modifyInteractionRef.current = new Modify({ source: vectorSource });
     map.addInteraction(modifyInteractionRef.current);
   };
 
-  const handleDeletePolygons = () => {
-    vectorSource.clear();
-  };
+  const handleDeletePolygons = () => vectorSource.clear();
+
+  const handleZoomIn = () => map.getView().setZoom(map.getView().getZoom() + 1);
+  const handleZoomOut = () => map.getView().setZoom(map.getView().getZoom() - 1);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex p-2 bg-gray-100 border-b border-gray-200">
-        <button
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md transition duration-200 hover:bg-purple-500 hover:text-white ${
-            activeButton === 'draw'
-              ? 'bg-purple-500 text-white'
-              : 'bg-white text-purple-700 border border-purple-300 hover:bg-purple-50'
-          }`}
-          onClick={handleDrawPolygon}
-        >
-          Draw Polygon
-        </button>
-        <button
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md transition duration-200 hover:bg-purple-500 hover:text-white ${
-            activeButton === 'edit'
-              ? 'bg-purple-500 text-white'
-              : 'bg-white text-purple-700 border border-purple-300 hover:bg-purple-50'
-          }`}
-          onClick={handleEditPolygon}
-        >
-          Edit Polygon
-        </button>
-        <button
-          className="px-4 py-2 text-sm font-medium bg-white text-pink-500 border border-pink-300 rounded-md hover:bg-pink-500 hover:text-white transition duration-200"
-          onClick={handleDeletePolygons}
-        >
-          Delete All
-        </button>
+    <div className="flex flex-col h-full relative">
+      <div className="flex p-2 bg-gray-100 border-b border-gray-200 z-10">
+        <button className="px-4 py-2 mr-2 bg-purple-500 text-white rounded-md" onClick={handleDrawPolygon}>Draw</button>
+        <button className="px-4 py-2 mr-2 bg-purple-500 text-white rounded-md" onClick={handleEditPolygon}>Edit</button>
+        <button className="px-4 py-2 bg-pink-500 text-white rounded-md" onClick={handleDeletePolygons}>Delete All</button>
+        <button className="px-4 py-2 ml-2 bg-blue-500 text-white rounded-md" onClick={handleZoomIn}>Zoom In</button>
+        <button className="px-4 py-2 ml-2 bg-blue-500 text-white rounded-md" onClick={handleZoomOut}>Zoom Out</button>
       </div>
-      <div
-        id="map"
-        className="flex-1 w-full h-full"
-        style={{
-          position: 'relative',
-          overflow: 'hidden',
-          backgroundColor: 'white',
-        }}
-      ></div>
+      <div id="map" className="flex-1 w-full h-full"></div>
+      <div className="absolute bottom-0 w-full bg-gray-200 text-center p-2 text-sm">© OpenStreetMap contributors.</div>
     </div>
   );
 };
