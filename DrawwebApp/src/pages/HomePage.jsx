@@ -19,6 +19,7 @@ const HomePage = () => {
         id="searchQuery"
         name="searchQuery"
         value={searchQuery}
+        placeholder='Enter Any Name or No to search'
         onChange={handleSearchChange} 
         className="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-none focus:ring-1 focus:ring-purple-500 mb-4"
       />
